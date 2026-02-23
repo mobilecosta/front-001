@@ -1,22 +1,15 @@
 /**
  * Componente de Formulário Dinâmico
- * Renderiza formulários baseados em metadata da API
+ * Renderiza formulários baseados em metadata da API usando shadcn/ui
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Button,
-  TextField,
-  Select,
-  MenuItem,
-  FormControlLabel,
-  Checkbox,
-  FormControl,
-  InputLabel,
-  CircularProgress,
-  Alert,
-} from '@mui/material';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Textarea } from '@/components/ui/textarea';
 import type { FormFieldMetadata } from '../types/po-ui.types';
 
 interface DynamicFormProps {
@@ -112,12 +105,7 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
     }
 
     const commonProps = {
-      fullWidth: true,
-      margin: 'normal' as const,
-      label: field.label,
-      placeholder: field.placeholder,
-      error: !!errors[field.nome],
-      helperText: errors[field.nome],
+      id: field.nome,
       disabled: loading || submitting,
     };
 
@@ -126,101 +114,117 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
       case 'email':
       case 'password':
         return (
-          <TextField
-            key={field.nome}
-            {...commonProps}
-            type={field.tipo}
-            value={formData[field.nome] || ''}
-            onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
-          />
+          <div key={field.nome} className="mb-4">
+            <Label htmlFor={field.nome}>{field.label}</Label>
+            <Input
+              {...commonProps}
+              type={field.tipo}
+              placeholder={field.placeholder}
+              value={formData[field.nome] || ''}
+              onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
+            />
+            {errors[field.nome] && <p className="text-sm text-red-500 mt-1">{errors[field.nome]}</p>}
+          </div>
         );
 
       case 'number':
         return (
-          <TextField
-            key={field.nome}
-            {...commonProps}
-            type="number"
-            inputProps={{
-              min: field.validacao?.min,
-              max: field.validacao?.max,
-              step: 0.01,
-            }}
-            value={formData[field.nome] || ''}
-            onChange={(e: any) => handleFieldChange(field.nome, parseFloat(e.target.value))}
-          />
+          <div key={field.nome} className="mb-4">
+            <Label htmlFor={field.nome}>{field.label}</Label>
+            <Input
+              {...commonProps}
+              type="number"
+              placeholder={field.placeholder}
+              min={field.validacao?.min}
+              max={field.validacao?.max}
+              step={0.01}
+              value={formData[field.nome] || ''}
+              onChange={(e: any) => handleFieldChange(field.nome, parseFloat(e.target.value))}
+            />
+            {errors[field.nome] && <p className="text-sm text-red-500 mt-1">{errors[field.nome]}</p>}
+          </div>
         );
 
       case 'date':
         return (
-          <TextField
-            key={field.nome}
-            {...commonProps}
-            type="date"
-            InputLabelProps={{ shrink: true }}
-            value={formData[field.nome] || ''}
-            onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
-          />
+          <div key={field.nome} className="mb-4">
+            <Label htmlFor={field.nome}>{field.label}</Label>
+            <Input
+              {...commonProps}
+              type="date"
+              value={formData[field.nome] || ''}
+              onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
+            />
+            {errors[field.nome] && <p className="text-sm text-red-500 mt-1">{errors[field.nome]}</p>}
+          </div>
         );
 
       case 'color':
         return (
-          <TextField
-            key={field.nome}
-            {...commonProps}
-            type="color"
-            value={formData[field.nome] || '#000000'}
-            onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
-          />
+          <div key={field.nome} className="mb-4">
+            <Label htmlFor={field.nome}>{field.label}</Label>
+            <Input
+              {...commonProps}
+              type="color"
+              value={formData[field.nome] || '#000000'}
+              onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
+            />
+            {errors[field.nome] && <p className="text-sm text-red-500 mt-1">{errors[field.nome]}</p>}
+          </div>
         );
 
       case 'textarea':
         return (
-          <TextField
-            key={field.nome}
-            {...commonProps}
-            multiline
-            rows={4}
-            value={formData[field.nome] || ''}
-            onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
-          />
+          <div key={field.nome} className="mb-4">
+            <Label htmlFor={field.nome}>{field.label}</Label>
+            <Textarea
+              {...commonProps}
+              placeholder={field.placeholder}
+              value={formData[field.nome] || ''}
+              onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
+            />
+            {errors[field.nome] && <p className="text-sm text-red-500 mt-1">{errors[field.nome]}</p>}
+          </div>
         );
 
       case 'select':
         return (
-          <FormControl key={field.nome} fullWidth margin="normal" error={!!errors[field.nome]}>
-            <InputLabel>{field.label}</InputLabel>
+          <div key={field.nome} className="mb-4">
+            <Label htmlFor={field.nome}>{field.label}</Label>
             <Select
               value={formData[field.nome] || ''}
-              onChange={(e: any) => handleFieldChange(field.nome, e.target.value)}
-              label={field.label}
+              onValueChange={(value: any) => handleFieldChange(field.nome, value)}
               disabled={loading || submitting}
             >
-              <MenuItem value="">
-                <em>Selecione...</em>
-              </MenuItem>
-              {field.opcoes?.map((opcao: any) => (
-                <MenuItem key={opcao.valor} value={opcao.valor}>
-                  {opcao.label}
-                </MenuItem>
-              ))}
+              <SelectTrigger>
+                <SelectValue placeholder="Selecione..." />
+              </SelectTrigger>
+              <SelectContent>
+                {field.opcoes?.map((opcao) => (
+                  <SelectItem key={opcao.valor} value={opcao.valor}>
+                    {opcao.label}
+                  </SelectItem>
+                ))}
+              </SelectContent>
             </Select>
-          </FormControl>
+            {errors[field.nome] && <p className="text-sm text-red-500 mt-1">{errors[field.nome]}</p>}
+          </div>
         );
 
       case 'checkbox':
         return (
-          <FormControlLabel
-            key={field.nome}
-            control={
-              <Checkbox
-                checked={formData[field.nome] || false}
-                onChange={(e: any) => handleFieldChange(field.nome, e.target.checked)}
-                disabled={loading || submitting}
-              />
-            }
-            label={field.label}
-          />
+          <div key={field.nome} className="mb-4 flex items-center space-x-2">
+            <Checkbox
+              id={field.nome}
+              checked={formData[field.nome] || false}
+              onCheckedChange={(checked: any) => handleFieldChange(field.nome, checked)}
+              disabled={loading || submitting}
+            />
+            <Label htmlFor={field.nome} className="font-normal cursor-pointer">
+              {field.label}
+            </Label>
+            {errors[field.nome] && <p className="text-sm text-red-500 mt-1">{errors[field.nome]}</p>}
+          </div>
         );
 
       default:
@@ -229,33 +233,23 @@ export const DynamicForm: React.FC<DynamicFormProps> = ({
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ maxWidth: 600, mx: 'auto' }}>
+    <form onSubmit={handleSubmit} className="max-w-md mx-auto">
       {fields
         .sort((a, b) => a.ordem - b.ordem)
         .map((field) => renderField(field))}
 
-      <Box sx={{ mt: 3, display: 'flex', gap: 2 }}>
-        <Button
-          type="submit"
-          variant="contained"
-          color="primary"
-          disabled={loading || submitting}
-        >
-          {submitting ? <CircularProgress size={24} /> : 'Salvar'}
+      <div className="mt-6 flex gap-2">
+        <Button type="submit" disabled={loading || submitting}>
+          {submitting ? 'Salvando...' : 'Salvar'}
         </Button>
 
         {onCancel && (
-          <Button
-            type="button"
-            variant="outlined"
-            onClick={onCancel}
-            disabled={loading || submitting}
-          >
+          <Button type="button" variant="outline" onClick={onCancel} disabled={loading || submitting}>
             Cancelar
           </Button>
         )}
-      </Box>
-    </Box>
+      </div>
+    </form>
   );
 };
 

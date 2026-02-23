@@ -4,18 +4,9 @@
  */
 
 import React, { useState, useEffect } from 'react';
-import {
-  Box,
-  Container,
-  Grid,
-  Card,
-  CardContent,
-  Typography,
-  CircularProgress,
-  Alert,
-  Button,
-  TextField,
-} from '@mui/material';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useApi } from '../hooks/useApi';
 import type { DashboardResponse } from '../types/po-ui.types';
 
@@ -53,25 +44,25 @@ export const Dashboard: React.FC = () => {
 
   if (loading) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   if (error) {
     return (
-      <Container maxWidth="lg" sx={{ py: 4 }}>
-        <Alert severity="error">{error}</Alert>
-        <Button onClick={loadDashboard} sx={{ mt: 2 }}>
-          Tentar Novamente
-        </Button>
-      </Container>
+      <div className="container mx-auto py-8">
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <p className="text-red-800">{error}</p>
+        </div>
+        <Button onClick={loadDashboard}>Tentar Novamente</Button>
+      </div>
     );
   }
 
   if (!dashboard) {
-    return <Typography>Nenhum dado disponível</Typography>;
+    return <div className="text-center py-8">Nenhum dado disponível</div>;
   }
 
   const formatCurrency = (value: number) => {
@@ -82,151 +73,129 @@ export const Dashboard: React.FC = () => {
   };
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
+    <div className="container mx-auto py-8">
       {/* Cabeçalho */}
-      <Box sx={{ mb: 4 }}>
-        <Typography variant="h4" component="h1" sx={{ mb: 2 }}>
-          Dashboard - {dashboard.tenant.nome}
-        </Typography>
+      <div className="mb-8">
+        <h1 className="text-4xl font-bold mb-4">Dashboard - {dashboard.tenant.nome}</h1>
 
         {/* Filtro de período */}
-        <Box sx={{ display: 'flex', gap: 2, mb: 3 }}>
-          <TextField
+        <div className="flex gap-2 mb-4">
+          <Input
             type="date"
-            label="Data Início"
             value={dateRange.inicio}
             onChange={(e: any) => setDateRange({ ...dateRange, inicio: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            size="small"
+            className="w-32"
           />
-          <TextField
+          <Input
             type="date"
-            label="Data Fim"
             value={dateRange.fim}
             onChange={(e: any) => setDateRange({ ...dateRange, fim: e.target.value })}
-            InputLabelProps={{ shrink: true }}
-            size="small"
+            className="w-32"
           />
-          <Button variant="contained" onClick={loadDashboard}>
-            Filtrar
-          </Button>
-        </Box>
-      </Box>
+          <Button onClick={loadDashboard}>Filtrar</Button>
+        </div>
+      </div>
 
       {/* Indicadores Principais */}
-      <Grid container spacing={3} sx={{ mb: 4 }}>
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Saldo Total
-              </Typography>
-              <Typography variant="h5" sx={{ color: '#4CAF50' }}>
-                {formatCurrency(dashboard.indicadores.saldoTotal)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Saldo Total</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-green-600">
+              {formatCurrency(dashboard.indicadores.saldoTotal)}
+            </div>
+          </CardContent>
+        </Card>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Receitas
-              </Typography>
-              <Typography variant="h5" sx={{ color: '#2196F3' }}>
-                {formatCurrency(dashboard.indicadores.receitasTotal)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Receitas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-blue-600">
+              {formatCurrency(dashboard.indicadores.receitasTotal)}
+            </div>
+          </CardContent>
+        </Card>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Despesas
-              </Typography>
-              <Typography variant="h5" sx={{ color: '#F44336' }}>
-                {formatCurrency(dashboard.indicadores.despesasTotal)}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Despesas</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-red-600">
+              {formatCurrency(dashboard.indicadores.despesasTotal)}
+            </div>
+          </CardContent>
+        </Card>
 
-        <Grid item xs={12} sm={6} md={3}>
-          <Card>
-            <CardContent>
-              <Typography color="textSecondary" gutterBottom>
-                Em Aberto
-              </Typography>
-              <Typography variant="h5" sx={{ color: '#FF9800' }}>
-                {dashboard.indicadores.transacoesAberto}
-              </Typography>
-            </CardContent>
-          </Card>
-        </Grid>
-      </Grid>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Em Aberto</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-orange-600">
+              {dashboard.indicadores.transacoesAberto}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
 
       {/* Últimas Transações */}
       <Card>
+        <CardHeader>
+          <CardTitle>Últimas Transações</CardTitle>
+        </CardHeader>
         <CardContent>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            Últimas Transações
-          </Typography>
-
           {dashboard.ultimasTransacoes.length === 0 ? (
-            <Typography color="textSecondary">Nenhuma transação registrada</Typography>
+            <p className="text-muted-foreground">Nenhuma transação registrada</p>
           ) : (
-            <Box sx={{ overflowX: 'auto' }}>
-              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
                 <thead>
-                  <tr style={{ borderBottom: '1px solid #ddd' }}>
-                    <th style={{ textAlign: 'left', padding: '8px' }}>Descrição</th>
-                    <th style={{ textAlign: 'right', padding: '8px' }}>Valor</th>
-                    <th style={{ textAlign: 'center', padding: '8px' }}>Tipo</th>
-                    <th style={{ textAlign: 'center', padding: '8px' }}>Data</th>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-2">Descrição</th>
+                    <th className="text-right py-2 px-2">Valor</th>
+                    <th className="text-center py-2 px-2">Tipo</th>
+                    <th className="text-center py-2 px-2">Data</th>
                   </tr>
                 </thead>
                 <tbody>
                   {dashboard.ultimasTransacoes.map((transacao) => (
-                    <tr key={transacao.id} style={{ borderBottom: '1px solid #eee' }}>
-                      <td style={{ padding: '8px' }}>{transacao.descricao}</td>
+                    <tr key={transacao.id} className="border-b hover:bg-muted/50">
+                      <td className="py-2 px-2">{transacao.descricao}</td>
                       <td
-                        style={{
-                          textAlign: 'right',
-                          padding: '8px',
-                          color: transacao.tipo === 'receita' ? '#4CAF50' : '#F44336',
-                        }}
+                        className={`text-right py-2 px-2 font-semibold ${
+                          transacao.tipo === 'receita' ? 'text-green-600' : 'text-red-600'
+                        }`}
                       >
                         {transacao.tipo === 'receita' ? '+' : '-'} {formatCurrency(transacao.valor)}
                       </td>
-                      <td style={{ textAlign: 'center', padding: '8px' }}>
+                      <td className="text-center py-2 px-2">
                         <span
-                          style={{
-                            padding: '4px 8px',
-                            borderRadius: '4px',
-                            backgroundColor:
-                              transacao.tipo === 'receita' ? '#E8F5E9' : '#FFEBEE',
-                            color: transacao.tipo === 'receita' ? '#4CAF50' : '#F44336',
-                            fontSize: '12px',
-                          }}
+                          className={`inline-block px-2 py-1 rounded text-xs font-semibold ${
+                            transacao.tipo === 'receita'
+                              ? 'bg-green-100 text-green-800'
+                              : 'bg-red-100 text-red-800'
+                          }`}
                         >
                           {transacao.tipo}
                         </span>
                       </td>
-                      <td style={{ textAlign: 'center', padding: '8px' }}>
+                      <td className="text-center py-2 px-2">
                         {new Date(transacao.data).toLocaleDateString('pt-BR')}
                       </td>
                     </tr>
                   ))}
                 </tbody>
               </table>
-            </Box>
+            </div>
           )}
         </CardContent>
       </Card>
-    </Container>
+    </div>
   );
 };
 

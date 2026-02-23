@@ -4,22 +4,15 @@
  */
 
 import React, { useState, useEffect } from 'react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
-  Box,
-  Container,
-  Button,
-  Table,
-  TableBody,
-  TableCell,
-  TableContainer,
-  TableHead,
-  TableRow,
-  Paper,
   Dialog,
-  CircularProgress,
-  Alert,
-  Typography,
-} from '@mui/material';
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { useApi } from '../hooks/useApi';
 import DynamicForm from '../components/DynamicForm';
 import type { Conta, PaginatedResponse } from '../types/po-ui.types';
@@ -114,76 +107,113 @@ export const Contas: React.FC = () => {
 
   if (loading && contas.length === 0) {
     return (
-      <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '100vh' }}>
-        <CircularProgress />
-      </Box>
+      <div className="flex justify-center items-center min-h-screen">
+        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      </div>
     );
   }
 
   return (
-    <Container maxWidth="lg" sx={{ py: 4 }}>
-      <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
-        <Typography variant="h4">Contas</Typography>
-        <Button variant="contained" onClick={handleNewConta}>
-          Nova Conta
-        </Button>
-      </Box>
+    <div className="container mx-auto py-8">
+      <div className="flex justify-between items-center mb-6">
+        <h1 className="text-3xl font-bold">Contas</h1>
+        <Button onClick={handleNewConta}>Nova Conta</Button>
+      </div>
 
-      {error && <Alert severity="error" sx={{ mb: 2 }}>{error}</Alert>}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-4">
+          <p className="text-red-800">{error}</p>
+        </div>
+      )}
 
-      <TableContainer component={Paper}>
-        <Table>
-          <TableHead>
-            <TableRow sx={{ backgroundColor: '#f5f5f5' }}>
-              <TableCell>Nome</TableCell>
-              <TableCell>Tipo</TableCell>
-              <TableCell>Banco</TableCell>
-              <TableCell align="right">Saldo</TableCell>
-              <TableCell align="center">Ações</TableCell>
-            </TableRow>
-          </TableHead>
-          <TableBody>
-            {contas.map((conta) => (
-              <TableRow key={conta.id}>
-                <TableCell>{conta.nome}</TableCell>
-                <TableCell>{conta.tipo}</TableCell>
-                <TableCell>{conta.banco || '-'}</TableCell>
-                <TableCell align="right">{formatCurrency(conta.saldo)}</TableCell>
-                <TableCell align="center">
-                  <Button size="small" onClick={() => handleEditConta(conta)}>
-                    Editar
-                  </Button>
-                  <Button size="small" color="error" onClick={() => handleDeleteConta(conta.id)}>
-                    Deletar
-                  </Button>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-      </TableContainer>
+      <Card>
+        <CardHeader>
+          <CardTitle>Lista de Contas</CardTitle>
+        </CardHeader>
+        <CardContent>
+          {contas.length === 0 ? (
+            <p className="text-muted-foreground">Nenhuma conta registrada</p>
+          ) : (
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b">
+                    <th className="text-left py-2 px-2">Nome</th>
+                    <th className="text-left py-2 px-2">Tipo</th>
+                    <th className="text-left py-2 px-2">Banco</th>
+                    <th className="text-right py-2 px-2">Saldo</th>
+                    <th className="text-center py-2 px-2">Ações</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {contas.map((conta) => (
+                    <tr key={conta.id} className="border-b hover:bg-muted/50">
+                      <td className="py-2 px-2">{conta.nome}</td>
+                      <td className="py-2 px-2">
+                        <span className="inline-block px-2 py-1 rounded text-xs font-semibold bg-blue-100 text-blue-800">
+                          {conta.tipo}
+                        </span>
+                      </td>
+                      <td className="py-2 px-2">{conta.banco || '-'}</td>
+                      <td className="text-right py-2 px-2 font-semibold">
+                        {formatCurrency(conta.saldo)}
+                      </td>
+                      <td className="text-center py-2 px-2">
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          onClick={() => handleEditConta(conta)}
+                          className="mr-2"
+                        >
+                          Editar
+                        </Button>
+                        <Button
+                          size="sm"
+                          variant="destructive"
+                          onClick={() => handleDeleteConta(conta.id)}
+                        >
+                          Deletar
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Diálogo de Formulário */}
-      <Dialog open={openDialog} onClose={handleCloseDialog} maxWidth="sm" fullWidth>
-        <Box sx={{ p: 3 }}>
-          <Typography variant="h6" sx={{ mb: 2 }}>
-            {selectedConta ? 'Editar Conta' : 'Nova Conta'}
-          </Typography>
-          <Box sx={{ mt: 2 }}>
-            <Button
-              variant="contained"
-              onClick={() => handleSaveConta({})}
-              sx={{ mr: 1 }}
-            >
-              Salvar
-            </Button>
-            <Button variant="outlined" onClick={handleCloseDialog}>
-              Cancelar
-            </Button>
-          </Box>
-        </Box>
+      <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>{selectedConta ? 'Editar Conta' : 'Nova Conta'}</DialogTitle>
+            <DialogDescription>
+              {selectedConta ? 'Atualize os dados da conta' : 'Preencha os dados para criar uma nova conta'}
+            </DialogDescription>
+          </DialogHeader>
+          <div className="py-4">
+            {/* Aqui iria o DynamicForm com metadata */}
+            <div className="space-y-4">
+              <Button
+                onClick={() => handleSaveConta({})}
+                className="w-full"
+              >
+                Salvar
+              </Button>
+              <Button
+                variant="outline"
+                onClick={handleCloseDialog}
+                className="w-full"
+              >
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        </DialogContent>
       </Dialog>
-    </Container>
+    </div>
   );
 };
 
